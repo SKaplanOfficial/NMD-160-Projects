@@ -18,4 +18,4 @@ Created by Stephen Kaplan and inspired by [Jacob Joaquin's](https://www.openproc
 
 ## Videos
 
-[https://youtu.be/icZAP4JzdNQ](https://youtu.be/icZAP4JzdNQ)
+Documentation Video: [https://youtu.be/icZAP4JzdNQ](https://youtu.be/icZAP4JzdNQ)
