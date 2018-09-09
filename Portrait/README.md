@@ -14,3 +14,4 @@ Created by Stephen Kaplan and inspired by [Jacob Joaquin's](https://www.openproc
 
 ## Images
 ![Image of Splash Screen](./images/Splash.png)
+![Image of Completed Portrait](./images/Portrait.png)
