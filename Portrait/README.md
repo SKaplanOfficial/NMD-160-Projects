@@ -1,6 +1,6 @@
 # Self Portrait
 
-This project requires the Processing Sound library. Full volume is recommended if not using headphones, otherwise half volume should be fine.
+This project requires the Processing Sound library. Full volume is recommended.
 
 Left click to generate squares at your mouse's position. These squares, all set at random rotations and a variety of colors, then travel to their predetermined location, in the end creating a coherant image of my face (albeit a stylized pixel version).
 
