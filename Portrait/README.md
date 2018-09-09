@@ -11,3 +11,6 @@ Move the mouse to change the portait's background color.
 There is a sound-related error (along the lines of ERROR: /node/set: Synth 837 not found) which I'm not sure how to fix currently. I believe this may be an issue in the Processing Sound library itself, as no such error exists when using Minim.
 
 Created by Stephen Kaplan and inspired by [Jacob Joaquin's](https://www.openprocessing.org/sketch/409770) sketch on [OpenProcessing.org](https://www.openprocessing.org).
+
+## Images
+![Image of Splash Screen](./images/Splash.png)
