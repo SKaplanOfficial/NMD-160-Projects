@@ -25,8 +25,8 @@ Created by Stephen Kaplan.
 	"name": "My Level",
 	"difficulty": "Easy",
 	"point value": 100,
-    "number of powerUps": 4,		** These two lines are unused currently
-    "powerUp types":[0,0,1,1],		** They will later control type/usefulness of power-ups in the level
+        "number of powerUps": 4,		** These two lines are unused currently
+        "powerUp types":[0,0,1,1],		** They will later control type/usefulness of power-ups in the level
 	"layout":[
 		"E", "0", "0", "0", "0", "0", "0", "P", "0", "0", "0",		** First index in row = Row type
 		"W", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",		** E = End row, W = River/Water row, S = Safezone Row
@@ -44,7 +44,7 @@ Created by Stephen Kaplan.
 
 ## Images
 ![Image of Collision in Debug Mode](./Screenshots/DebugCollision.png)
-![Image of Level Two, easily made by merely modifying a json file](./Screenshots/Level.png)
+![Image of Level Two, easily made by merely modifying a json file](./Screenshots/Level2.png)
 
 ## Videos
 
