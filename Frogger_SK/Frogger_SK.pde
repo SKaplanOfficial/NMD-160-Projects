@@ -70,10 +70,10 @@ void keyPressed() {
   // Toggle debug mode
   if (key == 'd') {
     if (debug) {
-      addNotification("Debug mode exited.", 300);
+      addNotification("Debug mode exited.", 100);
       log("Debug mode exited.");
     } else {
-      addNotification("Debug mode entered.", 300);
+      addNotification("Debug mode entered.", 100);
       log("Debug mode entered.");
     }
 
@@ -97,10 +97,12 @@ void keyPressed() {
       } else if (keyCode == RIGHT) {
         frog.moveRight();
       }
-      
-      if (keyCode == UP || keyCode == DOWN || keyCode == LEFT || keyCode == RIGHT){
-        for (int i=0; i<notifications.size(); i++){
-          notifications.get(i).timer = 0;
+
+      if (keyCode == UP || keyCode == DOWN || keyCode == LEFT || keyCode == RIGHT) {
+        for (int i=0; i<notifications.size(); i++) {
+          if (notifications.get(i).timer == -1) {
+            notifications.get(i).timer = 0;
+          }
         }
       }
     }
@@ -158,9 +160,9 @@ void addNotification(String msg, float targetX, float targetY, float sizeX, floa
   notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList));
 }
 
-void clearPersistantNotifications(){
-  for (int i=0; i<notifications.size(); i++){
-    if (notifications.get(i).timer == -1){
+void clearPersistantNotifications() {
+  for (int i=0; i<notifications.size(); i++) {
+    if (notifications.get(i).timer == -1) {
       notifications.get(i).timer = 0;
     }
   }

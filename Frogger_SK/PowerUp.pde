@@ -47,7 +47,7 @@ class PowerUp {
 
     // Currently just prints a message
     // In the future, add bonus points or decrease speed of cars (or other bonuses...?)
-    if (dist(xpos, ypos, frog.xpos+width/20, frog.ypos) < 40) {
+    if (dist(xpos+width/10, ypos, frog.xpos+width/20, frog.ypos) < 40) {
       print("COLLIDE");
     }
   }
@@ -61,13 +61,13 @@ class PowerUp {
 
     fill(0, 200, 255, 50);
     // Rounded rectangles
-    rect(xpos, ypos+(heightOfRow/2), 40, 40, 50);
+    rect(xpos+width/10, ypos+(heightOfRow/2), 40, 40, 50);
 
     fill(0, 200, 255, 100);
-    rect(xpos, ypos+(heightOfRow/2), 20, 20, 40);
+    rect(xpos+width/10, ypos+(heightOfRow/2), 20, 20, 40);
 
     fill(0, 200, 255);
-    rect(xpos, ypos+(heightOfRow/2), 10, 10, 30);
+    rect(xpos+width/10, ypos+(heightOfRow/2), 10, 10, 30);
     // 3 "concentric" rectangles with opacity increasing toward the center
 
     popStyle();

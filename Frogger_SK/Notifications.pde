@@ -49,7 +49,7 @@ class Notification {
     sizeY = 50;
 
     xpos = -sizeX;
-    ypos = height+sizeY;
+    ypos = targetY;
 
     timer = timer_;
 

@@ -41,7 +41,7 @@ class Frog {
         log(getExactTime()+" - Too many deaths on Scene "+currentScene+". Game lost.");
       }
       alive = false;
-    } else if (carDeath || riverDeath && moveRight(10)) {
+    } else if (carDeath || riverDeath && moveRight(20)) {
       // Record death
       deathCount += 1;
       log(getExactTime()+" - Death occurred. Reason: "+deathReason+". Total deaths: "+deathCount);
@@ -53,6 +53,12 @@ class Frog {
       if (debug) {
         log("Debug mode is enabled. Ignoring death.");
       } else {
+        if (deathReason == "river"){
+          addNotification("Oh no! You got washed down the river!", 100);
+        }else if (deathReason == "car"){
+          addNotification("Whoops! You forgot to look both ways!", 100);
+        }
+        
         if (deathCount < maxDeaths) {
           xpos = originX;
           ypos = originY;
