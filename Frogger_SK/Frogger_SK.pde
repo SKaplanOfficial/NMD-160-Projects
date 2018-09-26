@@ -25,10 +25,15 @@ String version = "0.0.1";
 String divider = new String(new char[5]).replace("", "-");
 float heightOfRow;
 
+String logPath = "logs/"+year()+"/"+month()+"/"+day()+".txt";
+boolean doesLogExist;
+
 
 // Runs once - Add start menu later, current initializes into first scene
 void setup() {
   size(800, 600); // Add way to change size later
+
+  doesLogExist = getFolders("logs") > 0 ? true: false;
 
   // Logging for debugging purposes, see the logs subfolder to see all info
   log("\n"+divider+getExactTime()+divider+"\n");
@@ -36,7 +41,7 @@ void setup() {
 
   // Find scenes & add to array
   log("Loading scenes.");
-  sceneAmount = getFolders();
+  sceneAmount = getFolders("Scenes");
   log("Number of scenes found: "+sceneAmount+".");
 
   for (int i=0; i<sceneAmount; i++) {
@@ -70,10 +75,10 @@ void keyPressed() {
   // Toggle debug mode
   if (key == 'd') {
     if (debug) {
-      addNotification("Debug mode exited.", 100);
+      addNotification("Debug mode exited.", 150);
       log("Debug mode exited.");
     } else {
-      addNotification("Debug mode entered.", 100);
+      addNotification("Debug mode entered.", 150);
       log("Debug mode entered.");
     }
 
@@ -156,8 +161,16 @@ void addNotification(String msg, int timer) {
   notifications.add(new Notification(msg, timer, notificationAmount));
 }
 
+void addNotification(String msg, int timer, color c) {
+  notifications.add(new Notification(msg, timer, notificationAmount, c));
+}
+
 void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList) {
   notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList));
+}
+
+void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList, color c) {
+  notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList, c));
 }
 
 void clearPersistantNotifications() {
@@ -171,15 +184,17 @@ void clearPersistantNotifications() {
 // Count folders within Scenes directory
 // Technically counts all files. This method should only work on UNIX systems (including MacOS).
 // Change to better method eventually, but this works for now.
-int getFolders() {
+int getFolders(String dir) {
   int folders = 0;
 
-  java.io.File folder = new java.io.File(sketchPath("Scenes"));
+  java.io.File folder = new java.io.File(sketchPath(dir));
   String[] list = folder.list();
   for (int i=0; i<list.length; i++) {
     if (!list[i].equals(".DS_Store")) {
       folders++;
-      log("Found scene " + list[i] + ".");
+      if (dir == "Scenes") {
+        log("Found scene " + list[i] + ".");
+      }
     }
   }
   return folders;
@@ -188,16 +203,24 @@ int getFolders() {
 
 // Append log messages to log file
 void log(String message) {
-  // Location
-  String logPath = "logs/"+year()+"/"+month()+"/"+day()+".txt";
-
+  File file = new File(sketchPath(logPath));
+  boolean newLogFile = !file.exists();
+  
   // Appending data
   String[] newMessage = {message};
-  String[] pastMessages = loadStrings(logPath);
+  String[] pastMessages = null;
+  if (doesLogExist) {
+    pastMessages = loadStrings(logPath);
+  }
   String[] logMessage;
 
-  if (pastMessages == null) {
+  if (pastMessages == null && doesLogExist == false) {
+    String[] firstLog = {"VERY FIRST RUN OF FROGGER"};
+    logMessage = concat(firstLog, newMessage);
+    doesLogExist = true;
+  } else if (pastMessages == null && newLogFile == true) {
     logMessage = newMessage;
+    newLogFile = false;
   } else {
     logMessage = concat(pastMessages, newMessage);
   }

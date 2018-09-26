@@ -1,4 +1,4 @@
-class Notification {
+class NotificationWrapper {
   float xpos, ypos;
   float targetX, targetY;
   float sizeX, sizeY;
@@ -10,10 +10,55 @@ class Notification {
 
   boolean inList = true;
 
-  Notification(String message_, float targetX_, float targetY_, float sizeX_, float sizeY_, int timer_, int id_, boolean inList_) {
-    id = id_;
+  color c;
 
+  int frameAtCreation;
+  
+  NotificationWrapper(String message_, int timer_, int id_, boolean inList_){
+    message = message_;
+    timer = timer_;
+    id = id_;
     inList = inList_;
+    
+    frameAtCreation = frameCount;
+    
+    if (inList){
+      notificationAmount++;
+    }
+    
+    targetX = 3;
+    
+    sizeX = 200;
+    sizeY = 50;
+    
+    c = color(20, 100);
+  }
+  
+  void update() {
+    float dx = targetX - xpos;
+    xpos += dx * 0.1;
+
+    float dy = targetY - ypos;
+    ypos += dy * 0.1;
+  }
+
+  void display() {
+    pushStyle();
+    noStroke();
+    fill(c);
+    rect(xpos, ypos, sizeX, sizeY);
+
+    fill(255);
+    textAlign(CENTER, CENTER);
+    text(message, xpos, ypos, sizeX, sizeY);
+    popStyle();
+  }
+}
+
+class Notification extends NotificationWrapper {
+
+  Notification(String message_, float targetX_, float targetY_, float sizeX_, float sizeY_, int timer_, int id_, boolean inList_, color c_) {
+    super(message_, timer_, id_, inList_);
 
     targetX = targetX_;
     targetY = targetY_;
@@ -29,73 +74,74 @@ class Notification {
       ypos = -sizeY;
     }
 
-    timer = timer_;
+    c = c_;
+  }
 
-    message = message_;
+
+  Notification(String message_, float targetX_, float targetY_, float sizeX_, float sizeY_, int timer_, int id_, boolean inList_) {
+    super(message_, timer_, id_, inList_);
+
+    targetX = targetX_;
+    targetY = targetY_;
+
+    sizeX = sizeX_;
+    sizeY = sizeY_;
 
     if (inList) {
-      notificationAmount++;
+      xpos = -sizeX;
+      ypos = height+sizeY;
+    } else {
+      xpos = targetX;
+      ypos = -sizeY;
     }
   }
 
-  Notification(String message_, int timer_, int id_) {
-    id = id_;
-
-    targetX = 3;
+  Notification(String message_, int timer_, int id_, color c_) {
+    super(message_, timer_, id_, true);
 
     targetY = height-(50+3)*(id+1); 
-
-    sizeX = 200;
-    sizeY = 50;
 
     xpos = -sizeX;
     ypos = targetY;
 
-    timer = timer_;
-
-    message = message_;
-
-    notificationAmount++;
+    c = c_;
   }
 
-  void update() {
-    float dx = targetX - xpos;
-    xpos += dx * 0.1;
+  Notification(String message_, int timer_, int id_){
+    super(message_, timer_, id_, true);
 
-    float dy = targetY - ypos;
-    ypos += dy * 0.1;
+    targetY = height-(50+3)*(id+1); 
 
+    xpos = -sizeX;
+    ypos = targetY;
+  }
+  
+  void update(){
+    super.update();
+    
     if (timer == -1 || timeShown < timer) {
-        timeShown++;
+      timeShown++;
     } else {
       for (int i=0; i<notifications.size(); i++) {
-        if (inList && targetY != height+sizeY && notifications.get(i).id > id && notifications.get(i).inList) {
-          notifications.get(i).id--;
+        if (inList && targetY != height+sizeY && notifications.get(i).frameAtCreation >= frameAtCreation && notifications.get(i).inList) {
+          notifications.get(i).id = i;
           notifications.get(i).targetY += sizeY+3;
         }
       }
 
-      if (inList && targetY != height+sizeY) {
+      if (inList && targetY != height+sizeY && notifications.size() > 0) {
         notificationAmount--;
       }
 
       targetY = height+sizeY;
 
-      if (ypos == targetY) {
+      if (ypos > height) {
         notifications.remove(this);
       }
     }
   }
-
-  void display() {
-    pushStyle();
-    noStroke();
-    fill(20, 100);
-    rect(xpos, ypos, sizeX, sizeY);
-
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(message, xpos, ypos, sizeX, sizeY);
-    popStyle();
+  
+  void display(){
+    super.display();
   }
 }

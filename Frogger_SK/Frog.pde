@@ -53,12 +53,12 @@ class Frog {
       if (debug) {
         log("Debug mode is enabled. Ignoring death.");
       } else {
-        if (deathReason == "river"){
-          addNotification("Oh no! You got washed down the river!", 100);
-        }else if (deathReason == "car"){
-          addNotification("Whoops! You forgot to look both ways!", 100);
+        if (deathReason == "river") {
+          addNotification("Oh no! You got washed down the river!", 100, color(0, 0, 200, 150));
+        } else if (deathReason == "car") {
+          addNotification("Whoops! You forgot to look both ways!", 100, color(200, 0, 0, 150));
         }
-        
+
         if (deathCount < maxDeaths) {
           xpos = originX;
           ypos = originY;
@@ -105,23 +105,23 @@ class Frog {
   void moveLeft() {
     xpos-=width/10;
 
-    if (xpos < 0) {
-      xpos = 0;
+    if (xpos < -width/20) {
+      xpos = -width/20;
     }
   }
 
   void moveRight() {
     xpos+=width/10;
 
-    if (xpos > width) {
-      xpos = width;
+    if (xpos > width-width/20) {
+      xpos = width-width/20;
     }
   }
 
 
   // Used only when a river death is ongoing. Returns true once Frogger flows off the screen.
   boolean moveRight(int amount) {
-    if (!debug){
+    if (!debug) {
       xpos+=amount;
     }
 
