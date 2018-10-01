@@ -5,6 +5,8 @@ class Frog {
   float xpos, ypos;
   float originX, originY;
 
+  float opacity = 255;
+
   // Size Attributes
   int sizeX = width/10;
   float sizeY = heightOfRow;
@@ -13,6 +15,8 @@ class Frog {
   boolean riverDeath;
   boolean carDeath;
   boolean alive = true;
+  boolean onLog = false;
+  boolean noReturn;
 
   int deathCount;
   int maxDeaths = 5;
@@ -20,6 +24,8 @@ class Frog {
 
   // Images
   PImage still, jumping;
+
+  float currentRotation;
 
 
   // Constructor
@@ -34,14 +40,25 @@ class Frog {
 
   // Check death amount && carry out death actions
   void update() {
+
+    float dx = width/10 - sizeX;
+    sizeX += dx * 0.4;
+
     // Limit number of deaths
     if (deathCount >= maxDeaths && !debug) {
       if (alive) {
         // Log game lost message only once
         log(getExactTime()+" - Too many deaths on Scene "+currentScene+". Game lost.");
+        
+        if (score > highscore){
+          highscore = score;
+          scoreObj.setFloat("highscore", score);
+          saveJSONObject(scoreObj, "data/highscore.json");
+        }
       }
       alive = false;
-    } else if (carDeath || riverDeath && moveRight(20)) {
+      score = 0;
+    } else if (carDeath || !onLog && riverDeath && moveRight(30)) {
       // Record death
       deathCount += 1;
       log(getExactTime()+" - Death occurred. Reason: "+deathReason+". Total deaths: "+deathCount);
@@ -53,15 +70,28 @@ class Frog {
       if (debug) {
         log("Debug mode is enabled. Ignoring death.");
       } else {
+        score /= 2;
+
         if (deathReason == "river") {
           addNotification("Oh no! You got washed down the river!", 100, color(0, 0, 200, 150));
+
+          if (soundSetting == 0) {
+            riverDeathSound.play();
+            riverDeathSound.rewind();
+          }
         } else if (deathReason == "car") {
           addNotification("Whoops! You forgot to look both ways!", 100, color(200, 0, 0, 150));
+          if (soundSetting == 0) {
+            carDeathSound.play();
+            carDeathSound.rewind();
+          }
         }
 
         if (deathCount < maxDeaths) {
           xpos = originX;
           ypos = originY;
+          noReturn = false;
+          onLog = false;
         }
       }
     }
@@ -71,7 +101,14 @@ class Frog {
   // Show frog
   void display() {
     if (still != null) {
-      image(still, xpos, ypos, sizeX, sizeY);
+      pushStyle();
+      pushMatrix();
+      tint(255, opacity);
+      translate(xpos+sizeX/2, ypos+sizeY/2);
+      rotate(currentRotation);
+      image(still, -sizeX/2, -sizeY/2, sizeX, sizeY);
+      popMatrix();
+      popStyle();
     }
   }
 
@@ -85,6 +122,9 @@ class Frog {
 
   // Vertical movement
   void moveUp() {
+    currentRotation = 0;
+    sizeX = width/8;
+
     ypos-=heightOfRow;
 
     if (ypos < 0) {
@@ -93,6 +133,10 @@ class Frog {
   }
 
   void moveDown() {
+    currentRotation = PI;
+
+    sizeX = width/8;
+
     ypos+=heightOfRow;
 
     if (ypos > height-heightOfRow) {
@@ -103,6 +147,9 @@ class Frog {
 
   // Horizontal movement
   void moveLeft() {
+    currentRotation = 3*PI/2;
+    sizeX = width/8;
+
     xpos-=width/10;
 
     if (xpos < -width/20) {
@@ -111,6 +158,9 @@ class Frog {
   }
 
   void moveRight() {
+    currentRotation = PI/2;
+    sizeX = width/8;
+
     xpos+=width/10;
 
     if (xpos > width-width/20) {
@@ -120,9 +170,13 @@ class Frog {
 
 
   // Used only when a river death is ongoing. Returns true once Frogger flows off the screen.
-  boolean moveRight(int amount) {
+  boolean moveRight(float amount) {
     if (!debug) {
       xpos+=amount;
+    }
+
+    if (riverDeath) {
+      noReturn = true;
     }
 
     if (xpos > width) {

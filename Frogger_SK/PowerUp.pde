@@ -47,8 +47,13 @@ class PowerUp {
 
     // Currently just prints a message
     // In the future, add bonus points or decrease speed of cars (or other bonuses...?)
-    if (dist(xpos+width/10, ypos, frog.xpos+width/20, frog.ypos) < 40) {
-      print("COLLIDE");
+    if (dist(xpos+width/10, ypos, frog.xpos+width/20, frog.ypos) < 30) {
+      if (soundSetting == 0) {
+        powerUpSound.play();
+        powerUpSound.rewind();
+      }
+      score += 1000;
+      scenes.get(currentScene).powerUps.remove(this);
     }
   }
 

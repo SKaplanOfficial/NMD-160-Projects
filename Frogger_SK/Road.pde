@@ -38,6 +38,13 @@ class Road {
 
   // Currently unused, but kept for easy access later
   void update() {
+    Frog frog = scenes.get(currentScene).frogger;
+    if (frog.ypos == ypos) {
+      if (!roadSound.isPlaying() && musicSetting == 0) {
+        roadSound.rewind();
+        roadSound.play();
+      }
+    }
   }
 
 
@@ -125,6 +132,8 @@ class Car {
   float speedX;
   int direction;
 
+  PImage carImage;
+
 
   // Constructor
   Car(int numCars_, float ypos_, int id_, int direction_, float speedX_) {
@@ -199,10 +208,10 @@ class Car {
 
     // If the car goes out of bounds, reset on opposit side
     // Larger bounds than usual to add variation in current screen content over course of the game
-    if (xpos < -width) {
-      xpos = width+sizeX/2;
-    } else if (xpos > width*2) {
-      xpos = -sizeX/2;
+    if (xpos < -(numCars*(width*2)/numCars)) {
+      xpos = width+500;
+    } else if (xpos > (numCars*(width*2)/numCars)) {
+      xpos = -500;
     }
   }
 
@@ -212,10 +221,28 @@ class Car {
     checkCollision();
 
     pushStyle();
+    pushMatrix();
     rectMode(CENTER);
-    fill(255, 0, 0);
-    // Add car images later
-    rect(xpos, ypos, sizeX, sizeY);
+
+    // If no car image is provided, resort to gray rectangles
+    if (carImage == null) {
+      fill(255, 0, 0);
+      rect(xpos, ypos, sizeX, sizeY);
+    } else {
+      translate(xpos, ypos);
+      if (direction < 0) {
+        rotate(PI);
+      } else {
+        rotate(0);
+      }
+      image(carImage, -sizeX/2, -sizeY/2, sizeX, sizeY);
+    }
+
     popStyle();
+    popMatrix();
+  }
+
+  void setImages() {
+    carImage = carImages[int(random(carImages.length))];
   }
 }

@@ -1,29 +1,60 @@
-/* Stephen Kaplan - September 25th, 2018 - NMD 160 Frogger Project
+/* Stephen Kaplan - October 1st, 2018 - NMD 160 Frogger Project
  This program is a recreation of Konami's classic "Frogger" game using a modular approach.
  Use the arrow keys to move frogger one "hop" at a time. Avoid colliding with vehicles.
- Contact with river water results in immediate loss of one life.
- After 5 lives, the game is over.
+ Direct contact with river water results in immediate loss of one life.
+ After 5 lives, the game is over. You may choose to restart at the current level, or go back to the start menu.
  
  Press D to enter debug mode. Once there, press Shift+. to switch to the next scene, or Shift+, to go back to the previous scene.
  In debug mode, press the down arrow to move frogger backward.
  
- Version 0.0.1
+ Version 1.0a
  */
+
+// IMPORTS
+import ddf.minim.*;
+
+// Declare the minim variables 
+Minim minim;
+AudioPlayer powerUpSound;
+AudioPlayer riverDeathSound;
+AudioPlayer carDeathSound;
+AudioPlayer endZoneSound;
+AudioPlayer roadSound;
+AudioPlayer riverSound;
 
 
 // State Management Variables
 ArrayList<Scene> scenes = new ArrayList<Scene>();
 ArrayList<Notification> notifications = new ArrayList<Notification>();
-int notificationAmount;
 
-int currentScene = 0;
+int currentScene = -2;
 int sceneAmount;            // Set by getFolders()
 boolean debug = false;      // Press d to toggle
+boolean startGame = false;
+boolean endGame = false;
+boolean winGame = false;
 
 // Utility Variables
-String version = "0.0.1";
+String version = "1.0a";
 String divider = new String(new char[5]).replace("", "-");
 float heightOfRow;
+int notificationAmount;
+
+
+String pathToBg = "data/bgImage.png";
+PImage bg;
+
+JSONObject scoreObj;           // Information loaded from highscore.json
+
+int currentSelection = 1;
+int sizeSetting = 0;
+int soundSetting = 0;
+int musicSetting = 0;
+
+float performanceModifier = 1;
+
+float score;
+float highscore;
 
 String logPath = "logs/"+year()+"/"+month()+"/"+day()+".txt";
 boolean doesLogExist;
@@ -32,8 +63,11 @@ boolean doesLogExist;
 // Runs once - Add start menu later, current initializes into first scene
 void setup() {
   size(800, 600); // Add way to change size later
+  background(21);
 
   doesLogExist = getFolders("logs") > 0 ? true: false;
+
+  minim = new Minim(this);
 
   // Logging for debugging purposes, see the logs subfolder to see all info
   log("\n"+divider+getExactTime()+divider+"\n");
@@ -48,30 +82,81 @@ void setup() {
     scenes.add(new Scene(scenes.size()));
   }
 
-  // Load initial scene (To be changed to start menu later)
-  log("Loading Data For Scene 0");
-  scenes.get(0).loadData();
-
-  log("Loading Assets For Scene 0 - "+scenes.get(0).getName());
-  scenes.get(0).loadAssets();
-
-  addNotification(scenes.get(currentScene).getName()+" - "+scenes.get(currentScene).getCatchPhrase(), 0, height/2-100, width, 200, -1, false);
+  scoreObj = loadJSONObject("./data/highscore.json");
+  highscore = scoreObj.getFloat("highscore");
 }
 
 
 // Runs ~60 times per second, add FPS monitor to debug mode later
 void draw() {
-  // All objects in scene are managed within scene class
-  scenes.get(currentScene).update();
-  scenes.get(currentScene).display();
 
+  if (startGame && !endGame) {
+    textSize(15);
+    // All objects in scene are managed within scene class
+    scenes.get(currentScene).update();
+    scenes.get(currentScene).display();
+
+    if (currentScene != sceneAmount) {
+      Frog frog = scenes.get(currentScene).frogger;
+      if (frog.deathCount >= frog.maxDeaths && !debug) {
+        showLoseScreen();
+      } else {
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text("Score: "+round(score)+"\nHigh Score: "+round(highscore), 0, 0, 150, heightOfRow);
+        text("Lives: "+(frog.maxDeaths-frog.deathCount), 0, height-heightOfRow, 100, heightOfRow);
+      }
+    }
+  } else if (endGame) {
+    showLoseScreen();
+  } else if (winGame) {
+    showWinScreen();
+  } else {
+
+    if (riverSound != null) {
+      riverSound.pause();
+      roadSound.pause();
+    }
+
+    if (currentScene == -2) { // Start Screen
+      showStartScreen();
+    } else if (currentScene == -3) { // Settings
+      showSettings();
+    } else {  // Level Selection
+      showLevelSelect();
+    }
+  }
+
+  textSize(15);
   for (int i=0; i<notifications.size(); i++) {
     notifications.get(i).display();
     notifications.get(i).update();
   }
 }
 
+
+// Keyboard Interaction
 void keyPressed() {
+  if (!startGame) {
+    if (currentScene == -2) { // Start Screen
+      startScreenListener();
+    } else if (currentScene == -3) { // Settings
+      settingsScreenListener();
+    } else if (currentScene == -1) {  // Level Selection
+      levelSelectionListener();
+    }
+  }
+
+  if (endGame) {
+    if (currentScene == -4) { // Losing
+      losingScreenListener();
+    }
+  }
+
+  if (winGame) {
+    winScreenListener();
+  }
+
   // Toggle debug mode
   if (key == 'd') {
     if (debug) {
@@ -89,13 +174,15 @@ void keyPressed() {
   }
 
   // If frog object is active, use arrow key listener
-  if (scenes.get(currentScene).frogger != null) {
+  if (currentScene > -1 && currentScene != sceneAmount && scenes.get(currentScene).frogger != null) {
     Frog frog = scenes.get(currentScene).frogger;
     if (debug || frog.alive() && frog.isNotDying()) {
       if (keyCode == UP) {
+        if (frog.ypos >= heightOfRow) {
+          score += 0.1;
+        }
         frog.moveUp();
-      } else if (keyCode == DOWN && debug) {
-        // Disabe downward movement unless debug mode is on
+      } else if (keyCode == DOWN) {
         frog.moveDown();
       } else if (keyCode == LEFT) {
         frog.moveLeft();
@@ -188,6 +275,12 @@ int getFolders(String dir) {
   int folders = 0;
 
   java.io.File folder = new java.io.File(sketchPath(dir));
+
+  if (!folder.exists()) {
+    File newFolder = new File(sketchPath("logs"));
+    newFolder.mkdir();
+  }
+
   String[] list = folder.list();
   for (int i=0; i<list.length; i++) {
     if (!list[i].equals(".DS_Store")) {
@@ -205,7 +298,7 @@ int getFolders(String dir) {
 void log(String message) {
   File file = new File(sketchPath(logPath));
   boolean newLogFile = !file.exists();
-  
+
   // Appending data
   String[] newMessage = {message};
   String[] pastMessages = null;
