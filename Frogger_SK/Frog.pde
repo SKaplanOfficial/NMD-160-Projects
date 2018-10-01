@@ -4,8 +4,7 @@ class Frog {
   // Position Attributes
   float xpos, ypos;
   float originX, originY;
-
-  float opacity = 255;
+  float currentRotation;
 
   // Size Attributes
   int sizeX = width/10;
@@ -23,12 +22,11 @@ class Frog {
   String deathReason;
 
   // Images
-  PImage still, jumping;
-
-  float currentRotation;
+  PImage still;
 
 
-  // Constructor
+  //***CONSTRUCTOR***//
+
   Frog(float xpos_, float ypos_) {
     xpos = xpos_-width/20;
     ypos = ypos_;
@@ -38,27 +36,40 @@ class Frog {
   }
 
 
+  //***UPDATE METHOD***//
+
   // Check death amount && carry out death actions
   void update() {
 
+    // Ease sizeX to width/10 -- Creates "jump" effect
     float dx = width/10 - sizeX;
     sizeX += dx * 0.4;
 
     // Limit number of deaths
-    if (deathCount >= maxDeaths && !debug) {
+    if (deathCount >= maxDeaths && !debug) {  // maxDeaths reached - Losing
+
+      // Done once upon death
       if (alive) {
-        // Log game lost message only once
+        // Log game lost message
         log(getExactTime()+" - Too many deaths on Scene "+currentScene+". Game lost.");
-        
-        if (score > highscore){
+
+        // Remove notification buildup
+        clearAllNotifications();
+
+        // Compare, set, and save high score
+        if (score > highscore) {
           highscore = score;
           scoreObj.setFloat("highscore", score);
           saveJSONObject(scoreObj, "data/highscore.json");
         }
       }
+
+      // Called contuiously after death (To ensure correct course of events)
+      // Kill frog and set score back to zero
       alive = false;
       score = 0;
-    } else if (carDeath || !onLog && riverDeath && moveRight(30)) {
+    } else if (carDeath || !onLog && riverDeath && moveRight(30)) {  // maxDeaths not yet reached
+
       // Record death
       deathCount += 1;
       log(getExactTime()+" - Death occurred. Reason: "+deathReason+". Total deaths: "+deathCount);
@@ -70,8 +81,10 @@ class Frog {
       if (debug) {
         log("Debug mode is enabled. Ignoring death.");
       } else {
+        // Decrease score
         score /= 2;
 
+        // Display notifications & play sounds relevent to the type of death
         if (deathReason == "river") {
           addNotification("Oh no! You got washed down the river!", 100, color(0, 0, 200, 150));
 
@@ -81,12 +94,14 @@ class Frog {
           }
         } else if (deathReason == "car") {
           addNotification("Whoops! You forgot to look both ways!", 100, color(200, 0, 0, 150));
+
           if (soundSetting == 0) {
             carDeathSound.play();
             carDeathSound.rewind();
           }
         }
 
+        // Reset position & state of frog
         if (deathCount < maxDeaths) {
           xpos = originX;
           ypos = originY;
@@ -98,35 +113,61 @@ class Frog {
   }
 
 
+  //***DISPLAY METHOD***//
+
   // Show frog
   void display() {
-    if (still != null) {
-      pushStyle();
+    if (still != null) {  // Make sure frog image is present
       pushMatrix();
-      tint(255, opacity);
       translate(xpos+sizeX/2, ypos+sizeY/2);
+
+      // 0 = UP, PI/2 = RIGHT, PI = DOWN, 3*PI/2 = LEFT
       rotate(currentRotation);
+
       image(still, -sizeX/2, -sizeY/2, sizeX, sizeY);
       popMatrix();
-      popStyle();
+    } else {              // Default "frog" in case no image is provided
+      pushMatrix();
+      translate(xpos+sizeX/2, ypos+sizeY/2);
+
+      // 0 = UP, PI/2 = RIGHT, PI = DOWN, 3*PI/2 = LEFT
+      rotate(currentRotation);
+
+      // Body
+      fill(0, 200, 0);
+      ellipse(0, 0, sizeX/2, sizeY/2);
+
+      // Eyes
+      fill(255);
+      ellipse(-sizeX/6, -sizeY/5, 18, 18);
+      ellipse(sizeX/6, -sizeY/5, 18, 18);
+
+      fill(0);
+      ellipse(-sizeX/6, -sizeY/5, 8, 8);
+      ellipse(sizeX/6, -sizeY/5, 8, 8);
+      popMatrix();
     }
   }
 
 
-  // Add images to frog (Can be used to have differently colored/designed frogs for each level)
-  void setImages(PImage still_, PImage jumping_) {
+  // Add image to frog (Can be used to have differently colored/designed frogs for each level)
+  void setImages(PImage still_) {
     still = still_;
-    jumping = jumping_;
   }
 
+
+  //***MOVEMENT***//
 
   // Vertical movement
   void moveUp() {
     currentRotation = 0;
+
+    // Increase sizeX (Jump effect)
     sizeX = width/8;
 
     ypos-=heightOfRow;
 
+    // Check boundary
     if (ypos < 0) {
       ypos = 0;
     }
@@ -135,10 +176,12 @@ class Frog {
   void moveDown() {
     currentRotation = PI;
 
+    // Increase sizeX (Jump effect)
     sizeX = width/8;
 
     ypos+=heightOfRow;
 
+    // Check boundary
     if (ypos > height-heightOfRow) {
       ypos = height-heightOfRow;
     }
@@ -148,10 +191,13 @@ class Frog {
   // Horizontal movement
   void moveLeft() {
     currentRotation = 3*PI/2;
+
+    // Increase sizeX (Jump effect)
     sizeX = width/8;
 
     xpos-=width/10;
 
+    // Check boundary
     if (xpos < -width/20) {
       xpos = -width/20;
     }
@@ -159,10 +205,13 @@ class Frog {
 
   void moveRight() {
     currentRotation = PI/2;
+
+    // Increase sizeX (Jump effect)
     sizeX = width/8;
 
     xpos+=width/10;
 
+    // Check boundary
     if (xpos > width-width/20) {
       xpos = width-width/20;
     }
@@ -186,6 +235,8 @@ class Frog {
     }
   }
 
+
+  //***STATE MANAGEMENT***//
 
   // Checks life status of Frog object
   boolean alive() {

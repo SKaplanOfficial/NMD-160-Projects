@@ -7,13 +7,19 @@
  Press D to enter debug mode. Once there, press Shift+. to switch to the next scene, or Shift+, to go back to the previous scene.
  In debug mode, press the down arrow to move frogger backward.
  
- Version 1.0a
+ Version 1.0b
  */
+
+
+
+//*****************************//
+//   IMPORTS, VARIABLES, ETC   //
+//*****************************//
 
 // IMPORTS
 import ddf.minim.*;
 
-// Declare the minim variables 
+// Minim variables
 Minim minim;
 AudioPlayer powerUpSound;
 AudioPlayer riverDeathSound;
@@ -22,54 +28,60 @@ AudioPlayer endZoneSound;
 AudioPlayer roadSound;
 AudioPlayer riverSound;
 
-
 // State Management Variables
 ArrayList<Scene> scenes = new ArrayList<Scene>();
 ArrayList<Notification> notifications = new ArrayList<Notification>();
 
-int currentScene = -2;
+int currentScene = -2;      // Level controller
 int sceneAmount;            // Set by getFolders()
+
 boolean debug = false;      // Press d to toggle
-boolean startGame = false;
-boolean endGame = false;
-boolean winGame = false;
+boolean startGame = false;  // Determines whether to display start menu or not
+boolean endGame = false;    // Lose screen
+boolean winGame = false;    // Win screen
+
+int currentSelection = 1;   // Selected menu button, change with arrow keys
+
+int sizeSetting = 0;        // 0 = 800x600, 1=800x800, 2=600x600
+int soundSetting = 0;       // 0 = On, 1 = Off  -- Eventually load these settings from json file
+int musicSetting = 0;       // 0 = On, 1 = Off
 
 // Utility Variables
-String version = "1.0a";
+String version = "1.0b";
 String divider = new String(new char[5]).replace("", "-");
-float heightOfRow;
 int notificationAmount;
 
-
-String pathToBg = "data/bgImage.png";
-PImage bg;
-
-JSONObject scoreObj;           // Information loaded from highscore.json
-
-int currentSelection = 1;
-int sizeSetting = 0;
-int soundSetting = 0;
-int musicSetting = 0;
-
-float performanceModifier = 1;
-
-float score;
-float highscore;
+float heightOfRow;              // Set based on rows defined in each scene's data.json
+float performanceModifier = 1;  // More objects loaded => Higher performanceModifier => Lower intensity of some game elements
 
 String logPath = "logs/"+year()+"/"+month()+"/"+day()+".txt";
 boolean doesLogExist;
 
+// Background for Pre_Game menus
+String pathToBg = "data/bgImage.png";
+PImage bg;
 
-// Runs once - Add start menu later, current initializes into first scene
+// Data loaded from json
+JSONObject scoreObj;           // Loaded from highscore.json
+float score;
+float highscore;
+
+
+
+//*****************************//
+//       SETUP  FUNCTION       //
+//*****************************//
+
+// Initializes into start menu
 void setup() {
-  size(800, 600); // Add way to change size later
+  size(800, 600);              // Size changed in settings menu
   background(21);
 
-  doesLogExist = getFolders("logs") > 0 ? true: false;
-
+  // Instanciate Minim
   minim = new Minim(this);
 
   // Logging for debugging purposes, see the logs subfolder to see all info
+  doesLogExist = getFolders("logs") > 0 ? true: false;
   log("\n"+divider+getExactTime()+divider+"\n");
   log("Initializing Frogger (Version "+version+")");
 
@@ -82,51 +94,64 @@ void setup() {
     scenes.add(new Scene(scenes.size()));
   }
 
+  // Load data from highscore.json
   scoreObj = loadJSONObject("./data/highscore.json");
   highscore = scoreObj.getFloat("highscore");
 }
 
 
+
+//*****************************//
+//        DRAW FUNCTION        //
+//*****************************//
+
 // Runs ~60 times per second, add FPS monitor to debug mode later
 void draw() {
 
-  if (startGame && !endGame) {
+  if (startGame && !endGame) {    // Normal gameplay
     textSize(15);
+    
     // All objects in scene are managed within scene class
     scenes.get(currentScene).update();
     scenes.get(currentScene).display();
 
     if (currentScene != sceneAmount) {
+      // Frog object to interact with
       Frog frog = scenes.get(currentScene).frogger;
-      if (frog.deathCount >= frog.maxDeaths && !debug) {
+      
+      if (frog.deathCount >= frog.maxDeaths && !debug) {    // Lose Screen
         showLoseScreen();
-      } else {
+      } else {                                              // Normal Gameplay - Show score & remaining lives
         fill(255);
         textAlign(CENTER, CENTER);
         text("Score: "+round(score)+"\nHigh Score: "+round(highscore), 0, 0, 150, heightOfRow);
         text("Lives: "+(frog.maxDeaths-frog.deathCount), 0, height-heightOfRow, 100, heightOfRow);
       }
     }
-  } else if (endGame) {
+    
+  } else if (endGame) {          // Lose screen
     showLoseScreen();
-  } else if (winGame) {
+    
+  } else if (winGame) {          // Win screen
     showWinScreen();
+    
   } else {
-
-    if (riverSound != null) {
-      riverSound.pause();
+    if (riverSound != null) {    // Pause gameplay music while in menu
+      riverSound.pause();        // Eventually add unique menu music
       roadSound.pause();
     }
 
-    if (currentScene == -2) { // Start Screen
+    if (currentScene == -2) {        // Start Menu
       showStartScreen();
-    } else if (currentScene == -3) { // Settings
+    } else if (currentScene == -3) { // Settings Menu
       showSettings();
-    } else {  // Level Selection
+    } else {                         // Level Selection
       showLevelSelect();
     }
   }
 
+
+  // Display notifications - Independent from scene management
   textSize(15);
   for (int i=0; i<notifications.size(); i++) {
     notifications.get(i).display();
@@ -135,30 +160,38 @@ void draw() {
 }
 
 
-// Keyboard Interaction
+
+//*****************************//
+//       KEYBOARD INPUT        //
+//*****************************//
+
+// Detects keyboard interaction on menus and during gameplay
 void keyPressed() {
+  // Navigate menus
   if (!startGame) {
-    if (currentScene == -2) { // Start Screen
+    if (currentScene == -2) {         // Start Screen
       startScreenListener();
-    } else if (currentScene == -3) { // Settings
+    } else if (currentScene == -3) {  // Settings
       settingsScreenListener();
     } else if (currentScene == -1) {  // Level Selection
       levelSelectionListener();
     }
   }
 
-  if (endGame) {
-    if (currentScene == -4) { // Losing
+  if (endGame) {                      // Losing
+    if (currentScene == -4) { 
       losingScreenListener();
     }
   }
 
-  if (winGame) {
+  if (winGame) {                      // Winning
     winScreenListener();
   }
 
+
   // Toggle debug mode
   if (key == 'd') {
+    // Give notification of state change
     if (debug) {
       addNotification("Debug mode exited.", 150);
       log("Debug mode exited.");
@@ -173,11 +206,16 @@ void keyPressed() {
     debugKeyPressed();
   }
 
-  // If frog object is active, use arrow key listener
+
+  // If frog object is active, use arrow key listener (Debug and arrow key listeners can operate concurrently)
   if (currentScene > -1 && currentScene != sceneAmount && scenes.get(currentScene).frogger != null) {
+    // Frog object to interact with
     Frog frog = scenes.get(currentScene).frogger;
+    
+    // Normal gameplay controls, also use these controls is debug mode is on (ignoring death)
     if (debug || frog.alive() && frog.isNotDying()) {
       if (keyCode == UP) {
+        // Increase score slightly for succesful vertical advancement across level
         if (frog.ypos >= heightOfRow) {
           score += 0.1;
         }
@@ -190,6 +228,7 @@ void keyPressed() {
         frog.moveRight();
       }
 
+      // Clear persistant notifications to have user focus on gameplay
       if (keyCode == UP || keyCode == DOWN || keyCode == LEFT || keyCode == RIGHT) {
         for (int i=0; i<notifications.size(); i++) {
           if (notifications.get(i).timer == -1) {
@@ -211,9 +250,10 @@ void debugKeyPressed() {
       scenes.get(currentScene).unloadAssets();
       clearPersistantNotifications();
 
-      currentScene += 1;
 
       // Load next scene
+      currentScene += 1;
+
       log("Loading Data For Scene "+currentScene);
       scenes.get(currentScene).loadData();
 
@@ -222,6 +262,7 @@ void debugKeyPressed() {
 
       addNotification(scenes.get(currentScene).getName()+" - "+scenes.get(currentScene).getCatchPhrase(), 0, height/2-100, width, 200, -1, false);
     }
+
 
     // Move to previous scene
     else if (key == '<' && currentScene > 0) {
@@ -229,9 +270,9 @@ void debugKeyPressed() {
       scenes.get(currentScene).unloadAssets();
       clearPersistantNotifications();
 
-      currentScene -= 1;
 
       // Load previous scene
+      currentScene -= 1;
       log("Loading Data For Scene "+currentScene);
       scenes.get(currentScene).loadData();
 
@@ -244,86 +285,155 @@ void debugKeyPressed() {
 }
 
 
+
+//*****************************//
+//         MOUSE INPUT         //
+//*****************************//
+
+// Effectively the same listeners are keyPressed(), but we also want to be able to detect mousePress when keys are not pressed
+void mousePressed() {
+  if (!startGame) {
+    if (currentScene == -2) {         // Start Screen
+      startScreenListener();
+    } else if (currentScene == -3) {  // Settings
+      settingsScreenListener();
+    } else if (currentScene == -1) {  // Level Selection
+      levelSelectionListener();
+    }
+  }
+
+  if (endGame) {                      // Losing
+    if (currentScene == -4) {
+      losingScreenListener();
+    }
+  }
+
+  if (winGame) {                      // Winning
+    winScreenListener();
+  }
+}
+
+
+
+//*****************************//
+//        NOTIFICATIONS        //
+//*****************************//
+
+// Function overloading to allow easy adaptation of notification system
+
+// Base function - Add normal notifcation with speific message and time on screen
 void addNotification(String msg, int timer) {
   notifications.add(new Notification(msg, timer, notificationAmount));
 }
 
+// Colored notification - Normal positioning, custom color
 void addNotification(String msg, int timer, color c) {
   notifications.add(new Notification(msg, timer, notificationAmount, c));
 }
 
+// Custom notification - Control location, size, and impact on other notifications
 void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList) {
   notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList));
 }
 
+// Custom colored notification - All aspects of a customed notification plus color control
 void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList, color c) {
   notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList, c));
 }
 
+
+// Remove persistant notifications upon switching scenes
 void clearPersistantNotifications() {
+  log("\nClearing persistant notifications");
   for (int i=0; i<notifications.size(); i++) {
-    if (notifications.get(i).timer == -1) {
+    if (notifications.get(i).timer == -1) {          // Timer of -1 indicates persistance
       notifications.get(i).timer = 0;
     }
   }
 }
 
-// Count folders within Scenes directory
+// Remove all notifications (Used when game is lost)
+void clearAllNotifications() {
+  log("\nClearing all notifications");
+  for (int i=0; i<notifications.size(); i++) {
+      notifications.get(i).timer = 0;
+  }
+}
+
+
+
+//*****************************//
+//           UTILITY           //
+//*****************************//
+
+// Count items within a directory
 // Technically counts all files. This method should only work on UNIX systems (including MacOS).
 // Change to better method eventually, but this works for now.
 int getFolders(String dir) {
-  int folders = 0;
+  int folders = 0;  // Count of folders
 
   java.io.File folder = new java.io.File(sketchPath(dir));
 
-  if (!folder.exists()) {
+  // Make a log folder if one doesn't already exist
+  if (dir == "logs" && !folder.exists()) {
     File newFolder = new File(sketchPath("logs"));
     newFolder.mkdir();
   }
 
+  // Count items in folder
   String[] list = folder.list();
   for (int i=0; i<list.length; i++) {
-    if (!list[i].equals(".DS_Store")) {
+    if (!list[i].equals(".DS_Store")) {  // Ignore folder attributes file
       folders++;
-      if (dir == "Scenes") {
+      if (dir == "Scenes") {             // Additional output for scene discovery
         log("Found scene " + list[i] + ".");
       }
     }
   }
+
+  // Return count of items
   return folders;
 }
 
 
 // Append log messages to log file
 void log(String message) {
+  // Determine whether log file already exists
   File file = new File(sketchPath(logPath));
   boolean newLogFile = !file.exists();
 
-  // Appending data
+  // New Data
   String[] newMessage = {message};
+
+  // Old Data
   String[] pastMessages = null;
   if (doesLogExist) {
     pastMessages = loadStrings(logPath);
   }
+
+  // Combined Data
   String[] logMessage;
 
-  if (pastMessages == null && doesLogExist == false) {
+  // Combine old and new messages into one array
+  if (pastMessages == null && doesLogExist == false) {      // Initial Run
     String[] firstLog = {"VERY FIRST RUN OF FROGGER"};
     logMessage = concat(firstLog, newMessage);
     doesLogExist = true;
-  } else if (pastMessages == null && newLogFile == true) {
+  } else if (pastMessages == null && newLogFile == true) {  // Runs on different dates (Not initial, but first of that day)
     logMessage = newMessage;
     newLogFile = false;
   } else {
-    logMessage = concat(pastMessages, newMessage);
+    logMessage = concat(pastMessages, newMessage);          // Subsequent runs during the same day
   }
 
-  // Saving data, reporting to console
+  // Saving data array, report to console
   saveStrings(logPath, logMessage);
   println(message);
 }
 
 
+// Returns time down to the current second
+// Used in logging
 String getExactTime() {
   return year()+"/"+month()+"/"+day()+" @ "+hour()+":"+minute()+":"+second();
 }

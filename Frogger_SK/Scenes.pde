@@ -242,11 +242,7 @@ class Scene {
     String imgLocation = "./Scenes/"+id+"/Assets/frogImage_still.png";
     frogImage_still = loadImage(imgLocation);
 
-    // Eventually, add animation when jumping
-    //imgLocation = "./Scenes/"+id+"/Assets/frogImage_jumping.png";
-    frogImage_jumping = loadImage(imgLocation);
-
-    frogger.setImages(frogImage_still, frogImage_jumping);
+    frogger.setImages(frogImage_still);
 
     // Car Textures
     int numCarImages = getFolders(sketchPath("Scenes/"+currentScene+"/Assets/Cars/"));

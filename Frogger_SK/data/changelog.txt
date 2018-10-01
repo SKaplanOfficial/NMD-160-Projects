@@ -1,0 +1,14 @@
+1.0a:
+- Initial submission
+- Added logs
+- Added lily pads
+- Added image assets
+- Added sound assets
+- Added endpoints & level progression
+- Added start menu, settings menu, level selection
+- Added lose screen and win screen
+
+1.0b:
+- Added mouse support for menus
+- Added default frog graphic for when no frogImage_still.png is provided in a scene's Assets folder
+- 

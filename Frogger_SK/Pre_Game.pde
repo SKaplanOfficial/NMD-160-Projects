@@ -57,7 +57,7 @@ void showStartScreen() {
   text("Select Level", width/2, height/2-height/5+startY, width/2, height/6);
   text("Settings", width/2, height/2+startY, width/2, height/6);
   text("Exit Game", width/2, height/2+height/5+startY, width/2, height/6);
-  
+
   textSize(height/40);
   text("Version "+version, width/2, height-50+startY*5, width/2, height/6);
   popStyle();
@@ -200,7 +200,7 @@ void showSettings() {
   } else if (sizeSetting == 1) {
     text("800 x 800", 50, 185, 200, 50);
   } else if (sizeSetting == 2) {
-    text("500 x 500", 50, 185, 200, 50);
+    text("600 x 600", 50, 185, 200, 50);
   }
 
   if (soundSetting == 0) {
@@ -250,6 +250,25 @@ void startScreenListener() {
   } else if (currentSelection == 3 && keyCode == ENTER) {
     exit();
   }
+
+
+  if (mousePressed) {
+    if (mouseX > width/2-width/4 && mouseX < width/2+width/4 && mouseY > height/2-height/5+startY-height/12 && mouseY < height/2-height/5+startY+height/12) {
+      startY = 400;
+      targetY = 200;
+
+      currentSelection = 1;
+      currentScene = -1;
+    } else if (mouseX > width/2-width/4 && mouseX < width/2+width/4 && mouseY > height/2+startY-height/12 && mouseY < height/2+startY+height/12) {
+      startY = 200;
+      targetY = 0;
+
+      currentScene = -3;
+      currentSelection = 1;
+    } else if (mouseX > width/2-width/4 && mouseX < width/2+width/4 && mouseY > height/2+height/5+startY-height/12 && mouseY < height/2+height/5+startY+height/12) {
+      exit();
+    }
+  }
 }
 
 void levelSelectionListener() {
@@ -283,6 +302,33 @@ void levelSelectionListener() {
 
     addNotification(scenes.get(currentScene).getName()+" - "+scenes.get(currentScene).getCatchPhrase(), 0, height/2-100, width, 200, -1, false);
   }
+
+  if (mousePressed) {
+    for (int i=0; i<sceneAmount; i++) {
+      if (mouseX > width/2-width/4 && mouseX < width/2+width/4 && mouseY > startY+i*60-25 && mouseY < startY+i*60+25) {
+        startGame = true;
+        currentScene = i;
+        currentSelection = 1;
+
+        //// Load initial scene (To be changed to start menu later)
+        log("Loading Data For Scene "+currentScene);
+        scenes.get(currentScene).loadData();
+
+        log("Loading Assets For Scene "+currentScene+" - "+scenes.get(currentScene).getName());
+        scenes.get(currentScene).loadAssets();
+
+        addNotification(scenes.get(currentScene).getName()+" - "+scenes.get(currentScene).getCatchPhrase(), 0, height/2-100, width, 200, -1, false);
+      }
+    }
+
+    if (mouseX > width/2-width/4 && mouseX < width/2+width/4 && mouseY > startY+(scenes.size()+1)*60-25 && mouseY < startY+(scenes.size()+1)*60+25) {
+      startY = 200;
+      targetY = 0;
+
+      currentSelection = 1;
+      currentScene = -2;
+    }
+  }
 }
 
 void settingsScreenListener() {
@@ -311,6 +357,29 @@ void settingsScreenListener() {
     } else if (currentSelection == 3) {
       musicSetting = (musicSetting+1)%2;
     } else if (currentSelection == 4) {
+      startY = 200;
+      targetY = 0;
+
+      currentSelection = 1;
+      currentScene = -2;
+    }
+  }
+  
+  if (mousePressed) {
+    if (mouseX > 50 && mouseX < 250 && mouseY > 185 && mouseY < 235) {
+      sizeSetting = (sizeSetting+1)%3;
+      if (sizeSetting == 0) {
+        surface.setSize(800, 600);
+      } else if (sizeSetting == 1) {
+        surface.setSize(800, 800);
+      } else if (sizeSetting == 2) {
+        surface.setSize(600, 600);
+      }
+    } else if (mouseX > 50 && mouseX < 250 && mouseY > 285 && mouseY < 335) {
+      soundSetting = (soundSetting+1)%2;
+    } else if (mouseX > 50 && mouseX < 250 && mouseY > 350 && mouseY < 400) {
+      musicSetting = (musicSetting+1)%2;
+    } else if (mouseX > 50 && mouseX < 250 && mouseY > 500 && mouseY < 550) {
       startY = 200;
       targetY = 0;
 
