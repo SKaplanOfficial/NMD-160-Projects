@@ -1,4 +1,4 @@
-# Frogger 
+# Frogger
 
 Version 1.0c - October 10th, 2018.
 
@@ -21,7 +21,7 @@ Created by Stephen Kaplan.
 
 ## Sample data.json
 ** JSON does not support comments, but for the sake of explanation please read all text preceded by ** as comments
-
+```
 {
 	"name": "My Level",
   	"catchPhrase": "This is a phrase",
@@ -41,12 +41,20 @@ Created by Stephen Kaplan.
 		"B", "0", "0", "0", "0", "F", "0", "0", "0", "0", "0",		** <0 = Move left, >0 = Move right
 	]
 }										** F (bottom row) = Initial placement of Frogger
-
+```
 To create your own level, copy one of the level folders and increment its name to the appropriate number (You would name it 6 if it is your first custom level). Within this folder you'll find a data.json file and an assets folder. Within the assets folder, you'll find various image files that are descriptively named for clarity. Replace the files as you wish. Note that the game can run functionally without any image files provided in the assets folder, however the Assets folder and its Cars subfolder must be present (even if empty) in order for the game to run. Using the guide shown above, modify the data.json file to customize the layout of your level. By modifying the image files and the layout of your level, you can create your own experience for the player (or for yourself!).
 
 ## Images
+Start Menu, Settings, Level Selection
+![Image of Start Menu](./Screenshots/StartMenu.png)
+![Image of Settings Menu](./Screenshots/SettingsMenu.png)
+![Image of Level Selection](./Screenshots/LevelSection.png)
+
+Death Messags
+![Image of death message that occurs when frog is washed down the river](./Screenshots/RiverDeath.png)
+
+Debug Mode
 ![Image of Collision in Debug Mode](./Screenshots/DebugCollision.png)
-![Image of Level Two, easily made by merely modifying a json file](./Screenshots/Level.png)
 
 ## Videos
 
