@@ -1,3 +1,7 @@
+//*****************************//
+//      PER-LEVEL BONUSES      //
+//*****************************//
+
 // A bonus/power-up class that defines attributes and behaviors for Frogger power up objects.
 class PowerUp {
   // Position Attributes
@@ -7,6 +11,9 @@ class PowerUp {
   // Direction of movement (Slight up/down motion)
   int direction = -1;
 
+  boolean colliding;
+  boolean show;
+
 
   // Constructor
   PowerUp(float xpos_, float ypos_) {
@@ -15,6 +22,9 @@ class PowerUp {
 
     originX = xpos;
     originY = ypos;
+
+    colliding = false;
+    show = true;
 
     ypos += int(random(-6, 6)); // Offset ypos to add fluidity
   }
@@ -47,34 +57,39 @@ class PowerUp {
 
     // Currently just prints a message
     // In the future, add bonus points or decrease speed of cars (or other bonuses...?)
-    if (dist(xpos+width/10, ypos, frog.xpos+width/20, frog.ypos) < 30) {
+    if (show && dist(xpos, ypos, frog.xpos+width/20, frog.ypos) < 30) {
       if (soundSetting == 0) {
         powerUpSound.play();
         powerUpSound.rewind();
       }
+      colliding = true;
       score += 1000;
-      scenes.get(currentScene).powerUps.remove(this);
+      show = false;
+    } else {
+      colliding = false;
     }
   }
 
 
   // Display power up object
   void display() {
-    noStroke();
-    pushStyle();
-    rectMode(CENTER);
+    if (show) {
+      noStroke();
+      pushStyle();
+      rectMode(CENTER);
 
-    fill(0, 200, 255, 50);
-    // Rounded rectangles
-    rect(xpos+width/10, ypos+(heightOfRow/2), 40, 40, 50);
+      fill(0, 200, 255, 50);
+      // Rounded rectangles
+      rect(xpos, ypos+(heightOfRow/2), 40, 40, 50);
 
-    fill(0, 200, 255, 100);
-    rect(xpos+width/10, ypos+(heightOfRow/2), 20, 20, 40);
+      fill(0, 200, 255, 100);
+      rect(xpos, ypos+(heightOfRow/2), 20, 20, 40);
 
-    fill(0, 200, 255);
-    rect(xpos+width/10, ypos+(heightOfRow/2), 10, 10, 30);
-    // 3 "concentric" rectangles with opacity increasing toward the center
+      fill(0, 200, 255);
+      rect(xpos, ypos+(heightOfRow/2), 10, 10, 30);
+      // 3 "concentric" rectangles with opacity increasing toward the center
 
-    popStyle();
+      popStyle();
+    }
   }
 }

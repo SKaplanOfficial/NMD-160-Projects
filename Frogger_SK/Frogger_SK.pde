@@ -7,7 +7,7 @@
  Press D to enter debug mode. Once there, press Shift+. to switch to the next scene, or Shift+, to go back to the previous scene.
  In debug mode, press the down arrow to move frogger backward.
  
- Version 1.0b
+ Version 1.0c
  */
 
 
@@ -47,18 +47,18 @@ int soundSetting = 0;       // 0 = On, 1 = Off  -- Eventually load these setting
 int musicSetting = 0;       // 0 = On, 1 = Off
 
 // Utility Variables
-String version = "1.0b";
-String divider = new String(new char[5]).replace("", "-");
+final String version = "1.0c";
+final String divider = new String(new char[5]).replace("", "-");
 int notificationAmount;
 
 float heightOfRow;              // Set based on rows defined in each scene's data.json
 float performanceModifier = 1;  // More objects loaded => Higher performanceModifier => Lower intensity of some game elements
 
-String logPath = "logs/"+year()+"/"+month()+"/"+day()+".txt";
+final String logPath = "logs/"+year()+"/"+month()+"/"+day()+".txt";
 boolean doesLogExist;
 
 // Background for Pre_Game menus
-String pathToBg = "data/bgImage.png";
+final String pathToBg = "data/bgImage.png";
 PImage bg;
 
 // Data loaded from json
@@ -310,53 +310,6 @@ void mousePressed() {
 
   if (winGame) {                      // Winning
     winScreenListener();
-  }
-}
-
-
-
-//*****************************//
-//        NOTIFICATIONS        //
-//*****************************//
-
-// Function overloading to allow easy adaptation of notification system
-
-// Base function - Add normal notifcation with speific message and time on screen
-void addNotification(String msg, int timer) {
-  notifications.add(new Notification(msg, timer, notificationAmount));
-}
-
-// Colored notification - Normal positioning, custom color
-void addNotification(String msg, int timer, color c) {
-  notifications.add(new Notification(msg, timer, notificationAmount, c));
-}
-
-// Custom notification - Control location, size, and impact on other notifications
-void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList) {
-  notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList));
-}
-
-// Custom colored notification - All aspects of a customed notification plus color control
-void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList, color c) {
-  notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList, c));
-}
-
-
-// Remove persistant notifications upon switching scenes
-void clearPersistantNotifications() {
-  log("\nClearing persistant notifications");
-  for (int i=0; i<notifications.size(); i++) {
-    if (notifications.get(i).timer == -1) {          // Timer of -1 indicates persistance
-      notifications.get(i).timer = 0;
-    }
-  }
-}
-
-// Remove all notifications (Used when game is lost)
-void clearAllNotifications() {
-  log("\nClearing all notifications");
-  for (int i=0; i<notifications.size(); i++) {
-      notifications.get(i).timer = 0;
   }
 }
 

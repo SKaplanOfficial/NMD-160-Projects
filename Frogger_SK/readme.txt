@@ -1,6 +1,6 @@
 # Frogger 
 
-Version 1.0a - October 1st, 2018.
+Version 1.0c - October 10th, 2018.
 
 The Minim library for Processing is required to run this project.
 
@@ -24,15 +24,15 @@ Created by Stephen Kaplan.
 
 {
 	"name": "My Level",
+  	"catchPhrase": "This is a phrase",
 	"difficulty": "Easy",
 	"point value": 100,
-  	"number of powerUps": 4,		** These two lines are unused currently
-    	"powerUp types":[0,0,1,1],		** They will later control type/usefulness of power-ups in the level
+  	"colorMode": 0, 							** 0 = light end point, 1 = dark end point
 	"layout":[
-		"E", "0", "0", "0", "0", "0", "0", "P", "0", "0", "0",		** First index in row = Row type
-		"W", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",		** E = End row, W = River/Water row, S = Safezone Row
+		"E", "0", "0", "0", "0", "x", "0", "0", "0", "0", "0",		** First index in row = Row type
+		"W", "0", "0", "0", "0", "0", "0", "P", "0", "0", "0",		** E = End row, W = River/Water row, S = Safezone Row
 		"W", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",		** R = Road row, B = Beginning row
-		"S", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+		"S", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",		** x = End point
 		"R", "1", "-8", "0", "0", "0", "0", "0", "P", "0", "0",		** P (scattered about) = Power-up placed at specific location
 		"R", "-1", "-5", "P", "0", "0", "0", "0", "0", "0", "0",
 		"R", "3", "0", "0", "0", "0", "0", "0", "0", "0", "0",		** Second index in Road rows = Road Type
@@ -42,6 +42,7 @@ Created by Stephen Kaplan.
 	]
 }										** F (bottom row) = Initial placement of Frogger
 
+To create your own level, copy one of the level folders and increment its name to the appropriate number (You would name it 6 if it is your first custom level). Within this folder you'll find a data.json file and an assets folder. Within the assets folder, you'll find various image files that are descriptively named for clarity. Replace the files as you wish. Note that the game can run functionally without any image files provided in the assets folder, however the Assets folder and its Cars subfolder must be present (even if empty) in order for the game to run. Using the guide shown above, modify the data.json file to customize the layout of your level. By modifying the image files and the layout of your level, you can create your own experience for the player (or for yourself!).
 
 ## Images
 ![Image of Collision in Debug Mode](./Screenshots/DebugCollision.png)
@@ -52,6 +53,6 @@ Created by Stephen Kaplan.
 Documentation Video: https://www.youtube.com/watch?v=Qb9IaEbrCEc
 
 ## Changes Coming Soon
-- Per-level high scores stored in Scene/x/data.json
-- More levels
 - Original soundtrack
+- More levels
+- Compressed images

@@ -1,3 +1,7 @@
+//*****************************//
+//       FROG MANAGEMENT       //
+//*****************************//
+
 // A user-controlled frog object for the game Frogger.
 // Use arrow keys to move. Avoid cars and river water.
 class Frog {
@@ -13,6 +17,8 @@ class Frog {
   // State Attributes
   boolean riverDeath;
   boolean carDeath;
+  boolean lethalDeath;
+
   boolean alive = true;
   boolean onLog = false;
   boolean noReturn;
@@ -68,7 +74,7 @@ class Frog {
       // Kill frog and set score back to zero
       alive = false;
       score = 0;
-    } else if (carDeath || !onLog && riverDeath && moveRight(30)) {  // maxDeaths not yet reached
+    } else if (lethalDeath || carDeath || !onLog && riverDeath && moveRight(30)) {  // maxDeaths not yet reached
 
       // Record death
       deathCount += 1;
@@ -77,6 +83,7 @@ class Frog {
       // Reset Frog object
       carDeath = false;
       riverDeath = false;
+      lethalDeath = false;
 
       if (debug) {
         log("Debug mode is enabled. Ignoring death.");
@@ -99,6 +106,13 @@ class Frog {
             carDeathSound.play();
             carDeathSound.rewind();
           }
+        } else if (deathReason == "lethalSpot") {
+          addNotification("Look's like you can't jump there...", 100, color(200, 100, 0, 150));
+
+          if (soundSetting == 0) {
+            carDeathSound.play();
+            carDeathSound.rewind();
+          }
         }
 
         // Reset position & state of frog
@@ -108,6 +122,13 @@ class Frog {
           noReturn = false;
           onLog = false;
         }
+      }
+    }
+
+    if (currentScene != scenes.size()) {
+      boolean checkSafe = scenes.get(currentScene).checkSafe();
+      if (ypos == 0 && !checkSafe) {
+        this.die("lethalSpot");
       }
     }
   }
@@ -256,6 +277,8 @@ class Frog {
       riverDeath = true;
     } else if (reason == "car") {
       carDeath = true;
+    } else if (reason == "lethalSpot") {
+      lethalDeath = true;
     }
 
     deathReason = reason;

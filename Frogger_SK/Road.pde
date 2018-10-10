@@ -1,3 +1,7 @@
+//*****************************//
+//       ROAD MANAGEMENT       //
+//*****************************//
+
 // A class that manages and displays a road row in the game Frogger.
 class Road {
   // Position Attributes
@@ -72,7 +76,7 @@ class Road {
     } else if (showWhiteLine == 2) {
       noStroke();
       fill(255);
-      rect(0, ypos+height/12-10, width, 5);
+      rect(0, ypos+heightOfRow-10, width, 5);
     }
 
     // Add yellows lines to middle of row according to json data
@@ -121,7 +125,7 @@ class Car {
   float maxSizeX = 100;
   float maxSizeY = heightOfRow;
 
-  float minSizeX = 30;
+  float minSizeX = 50;
   float minSizeY = heightOfRow/2;
 
   // Collision Attributes
@@ -243,6 +247,8 @@ class Car {
   }
 
   void setImages() {
-    carImage = carImages[int(random(carImages.length))];
+    if (carImages.length > 0) {
+      carImage = carImages[int(random(carImages.length))];
+    }
   }
 }

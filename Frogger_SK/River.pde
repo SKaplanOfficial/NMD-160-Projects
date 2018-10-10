@@ -1,3 +1,7 @@
+//*****************************//
+//       RIVER MANAGEMENT      //
+//*****************************//
+
 // A class that manages and displays a river row in the game Frogger.
 class River {
   // Position Attributes
@@ -179,7 +183,7 @@ class Log {
   float maxSizeY = heightOfRow;
 
   float minSizeX = 1;
-  float minSizeY = heightOfRow/2;
+  float minSizeY = heightOfRow/2.5;
 
   // Collision Attributes
   boolean isCounted = false;
@@ -401,9 +405,8 @@ class LilyPad {
   }
 
 
-  // Move log object
+  // Move Lily pad object
   void update() {
-    Frog frog = scenes.get(currentScene).frogger;
     // Move in direction specified in json
     xpos += speedX;
 

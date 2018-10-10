@@ -1,3 +1,7 @@
+//*****************************//
+//     END ZONE MANAGEMENT     //
+//*****************************//
+
 // A class that manages and displays a safezone row in the game Frogger.
 class Safezone {
   // Position Attributes
@@ -30,7 +34,12 @@ class Safezone {
       // Otherwise, use math to provide optimal tiling of image along the row
       float ratio = grassImage.height/heightOfRow;
       for (int x=0; x<width; x += grassImage.width/ratio) {
+        pushStyle();
+        if (ypos == 0) {
+          tint(0, 155, 0, 200);
+        }
         image(grassImage, x, ypos, grassImage.width/ratio, heightOfRow);
+        popStyle();
       }
     }
   }
@@ -53,6 +62,8 @@ class EndPoint {
   // Direction of movement (Slight up/down motion)
   int direction = -1;
 
+  boolean colliding;
+
 
   // Constructor
   EndPoint(float xpos_, float ypos_) {
@@ -61,6 +72,8 @@ class EndPoint {
 
     originX = xpos;
     originY = ypos;
+
+    colliding = false;
 
     ypos += int(random(-6, 6)); // Offset ypos to add fluidity
   }
@@ -79,8 +92,10 @@ class EndPoint {
 
     // Currently just prints a message
     // In the future, add bonus points or decrease speed of cars (or other bonuses...?)
-    if (dist(xpos+width/10, ypos, frog.xpos+width/20, frog.ypos) < 30) {
+    if (dist(xpos, ypos, frog.xpos+width/20, frog.ypos) < 30) {
       score += 2000;
+
+      colliding = true;
 
       if (scenes.get(currentScene).endPoints.size() > 1) {
         frog.xpos = frog.originX;
@@ -118,6 +133,8 @@ class EndPoint {
         startGame = false;
         scenes.get(currentScene-1).unloadAssets();
       }
+    } else {
+      colliding = false;
     }
   }
 
@@ -128,18 +145,35 @@ class EndPoint {
     pushStyle();
     rectMode(CENTER);
 
-    fill(222, 184, 135, 50);
-    // Rounded rectangles
-    rect(xpos+width/10, ypos+(heightOfRow/2), 55, 55, 50);
+    JSONObject colorObj = loadJSONObject("./Scenes/"+currentScene+"/data.json");
+    int colorMode = colorObj.getInt("colorMode");
+    
+    if (colorMode == 0) { // Light colors
+      fill(222, 184, 135, 50);
+      // Rounded rectangles
+      rect(xpos, ypos+(heightOfRow/2), 55, 55, 50);
 
-    fill(222, 184, 135, 100);
-    rect(xpos+width/10, ypos+(heightOfRow/2), 52, 52, 40);
+      fill(222, 184, 135, 100);
+      rect(xpos, ypos+(heightOfRow/2), 52, 52, 40);
 
-    fill(222, 184, 135, 150);
-    rect(xpos+width/10, ypos+(heightOfRow/2), 47, 47, 30);
+      fill(222, 184, 135, 150);
+      rect(xpos, ypos+(heightOfRow/2), 47, 47, 30);
 
-    fill(222, 184, 135, 200);
-    rect(xpos+width/10, ypos+(heightOfRow/2), 40, 40, 30);
+      fill(222, 184, 135, 200);
+      rect(xpos, ypos+(heightOfRow/2), 40, 40, 30);
+    } else {  // Dark colors
+      fill(80, 92, 67, 50);
+      rect(xpos, ypos+(heightOfRow/2), 55, 55, 50);
+
+      fill(80, 92, 67, 100);
+      rect(xpos, ypos+(heightOfRow/2), 52, 52, 40);
+
+      fill(80, 92, 67, 150);
+      rect(xpos, ypos+(heightOfRow/2), 47, 47, 30);
+
+      fill(80, 92, 67, 200);
+      rect(xpos, ypos+(heightOfRow/2), 40, 40, 30);
+    }
     // 3 "concentric" rectangles with opacity increasing toward the center
 
     popStyle();

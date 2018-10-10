@@ -11,4 +11,8 @@
 1.0b:
 - Added mouse support for menus
 - Added default frog graphic for when no frogImage_still.png is provided in a scene's Assets folder
-- 
+
+1.0c:
+- Added comments for clarity
+- Added more levels
+- Added more options for level creation

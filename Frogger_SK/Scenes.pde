@@ -1,3 +1,8 @@
+//*****************************//
+//       SCENE MANAGEMENT      //
+//*****************************//
+
+
 PImage[] carImages;             // Car Textures
 
 // A class for Scenes (levels) in the game Frogger. Includes functional game elements as well as (basic) memory management.
@@ -80,7 +85,7 @@ class Scene {
       endPoints.get(i).update();
     }
 
-    // PowerUps sixth.
+    // PowerUps seventh.
     for (int i=0; i<powerUps.size(); i++) {
       powerUps.get(i).display();
       powerUps.get(i).update();
@@ -206,10 +211,14 @@ class Scene {
           rivers.add(new River(y*heightOfRow, numberOfLogs));
           riverAmount++;
         } else if (layout[pos].equals("P")) {                  // Power Ups (At a specific spot)
-          powerUps.add(new PowerUp(x*(width/10), y*heightOfRow));
+          if (y == 0){
+           powerUps.add(new PowerUp((x-0.5)*(width/10), y*heightOfRow));
+          }else{
+           powerUps.add(new PowerUp((x-1)*(width/10), y*heightOfRow)); 
+          }
           powerUpAmount++;
         } else if (layout[pos].equals("x")) {                  // End point (At a specific spot)
-          endPoints.add(new EndPoint(x*(width/10), y*heightOfRow));
+          endPoints.add(new EndPoint((x-0.5)*(width/10), y*heightOfRow));
           endPointAmount++;
         } else if (layout[pos].equals("F")) {                  // Frogger (At a specific spot)
           frogger = new Frog(x*(width/10), y*heightOfRow);
@@ -361,5 +370,23 @@ class Scene {
 
   String getCatchPhrase() {
     return catchPhrase;
+  }
+  
+  
+  boolean checkSafe(){
+    boolean isSafe = false;
+    
+    for (int i=0; i<powerUps.size(); i++){
+      if (powerUps.get(i).colliding == true){
+        isSafe = true;
+      }
+    }
+    
+    for (int i=0; i<endPoints.size(); i++){
+      if (endPoints.get(i).colliding == true){
+        isSafe = true;
+      }
+    }
+    return isSafe;
   }
 }

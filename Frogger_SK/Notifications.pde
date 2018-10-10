@@ -1,3 +1,50 @@
+//*****************************//
+//   NOTIFICATION MANAGEMENT   //
+//*****************************//
+
+// Function overloading to allow easy adaptation of notification system
+
+// Base function - Add normal notifcation with speific message and time on screen
+void addNotification(String msg, int timer) {
+  notifications.add(new Notification(msg, timer, notificationAmount));
+}
+
+// Colored notification - Normal positioning, custom color
+void addNotification(String msg, int timer, color c) {
+  notifications.add(new Notification(msg, timer, notificationAmount, c));
+}
+
+// Custom notification - Control location, size, and impact on other notifications
+void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList) {
+  notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList));
+}
+
+// Custom colored notification - All aspects of a customed notification plus color control
+void addNotification(String msg, float targetX, float targetY, float sizeX, float sizeY, int timer, boolean includeInList, color c) {
+  notifications.add(new Notification(msg, targetX, targetY, sizeX, sizeY, timer, notificationAmount, includeInList, c));
+}
+
+
+// Remove persistant notifications upon switching scenes
+void clearPersistantNotifications() {
+  log("\nClearing persistant notifications");
+  for (int i=0; i<notifications.size(); i++) {
+    if (notifications.get(i).timer == -1) {          // Timer of -1 indicates persistance
+      notifications.get(i).timer = 0;
+    }
+  }
+}
+
+// Remove all notifications (Used when game is lost)
+void clearAllNotifications() {
+  log("\nClearing all notifications");
+  for (int i=0; i<notifications.size(); i++) {
+      notifications.get(i).timer = 0;
+  }
+}
+
+
+
 // A wrapper class for notifications that manages the base functionality of all notifications, regardless of type
 class NotificationWrapper {
   // Position Attributes

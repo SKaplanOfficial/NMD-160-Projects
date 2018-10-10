@@ -1,17 +1,26 @@
+//*****************************//
+//         START MENU          //
+//*****************************//
+
 float startY = 200;
 float targetY = 0;
 
 // UI
 void showStartScreen() {
+  // Background Image
   bg = loadImage(pathToBg);
   image(bg, 0, 0, width, height);
 
   pushStyle();
   rectMode(CENTER);
 
+
+  // Ease into position
   float dy = targetY - startY;
   startY += dy * 0.2;
 
+
+  // Buttons
   if (currentSelection == 1) {
     fill(0, 200, 100, 200);
     stroke(0, 255, 100, 150);
@@ -63,8 +72,15 @@ void showStartScreen() {
   popStyle();
 }
 
+
+
+//*****************************//
+//       LEVEL SELECTION       //
+//*****************************//
+
 void showLevelSelect() {
 
+  // Ease into position
   float dy = targetY - startY;
   startY += dy * 0.2;
 
@@ -75,6 +91,8 @@ void showLevelSelect() {
   textAlign(CENTER, CENTER);
   textSize(height/30);
 
+
+  // Buttons
   for (int i=0; i<scenes.size(); i++) {
     String levelInfo = scenes.get(i).loadPreGameData();
     rectMode(CENTER);
@@ -101,6 +119,7 @@ void showLevelSelect() {
     text(levelInfo, width/2, startY+i*60, width/2, 50);
   }
 
+
   if (currentSelection == scenes.size()+1) {
     fill(0, 200, 100, 200);
     stroke(0, 255, 100, 150);
@@ -120,6 +139,7 @@ void showLevelSelect() {
 
 void showSettings() {
 
+  // Ease into position
   float dy = targetY - startY;
   startY += dy * 0.2;
 
@@ -141,6 +161,8 @@ void showSettings() {
 
   text("Sounds", 50, 250, width, 300);
 
+
+  // Buttons
   if (currentSelection == 1) {
     fill(0, 200, 100, 200);
     stroke(0, 255, 100, 150);
