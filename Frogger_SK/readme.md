@@ -46,14 +46,17 @@ To create your own level, copy one of the level folders and increment its name t
 
 ## Images
 Start Menu, Settings, Level Selection
+
 ![Image of Start Menu](./Screenshots/StartMenu.png)
 ![Image of Settings Menu](./Screenshots/SettingsMenu.png)
 ![Image of Level Selection](./Screenshots/LevelSelection.png)
 
-Death Messags
+Death Messages
+
 ![Image of death message that occurs when frog is washed down the river](./Screenshots/RiverDeathNotification.png)
 
 Debug Mode
+
 ![Image of Collision in Debug Mode](./Screenshots/DebugCollision.png)
 
 ## Videos
