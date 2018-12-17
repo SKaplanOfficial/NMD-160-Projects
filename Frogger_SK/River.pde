@@ -17,8 +17,13 @@ class River {
   ArrayList<LilyPad> lilyPads = new ArrayList<LilyPad>();
 
   // River Particles
-  float particleAmount = map(height, 500, 800, 1000, 500)/performanceModifier;
-  ArrayList<RiverParticle> particles = new ArrayList<RiverParticle>();
+  //float particleAmount = map(height, 500, 800, 1000, 500)/performanceModifier;
+  //ArrayList<RiverParticle> particles = new ArrayList<RiverParticle>();
+
+  float xstart = random(10);
+  float xnoise = xstart;
+  float ynoise = random(10);
+  float noiseMod = random(30,80);
 
 
   // Constructor
@@ -35,9 +40,9 @@ class River {
     laneSpeed = random(3, 8);
 
     // Populate river with particles
-    for (int i=0; i<particleAmount; i++) {
-      particles.add(new RiverParticle(random(width), ypos));
-    }
+    //for (int i=0; i<particleAmount; i++) {
+    //  particles.add(new RiverParticle(random(width), ypos));
+    //}
 
     for (int i=0; i<numLogs; i++) {
       logs.add(new Log(numLogs, ypos, logs.size(), laneSpeed));
@@ -77,18 +82,38 @@ class River {
   void display() {
     // Blue row background
     noStroke();
-    fill(0, 0, 255);
+    fill(0, 0, 200);
     rect(0, ypos, width, heightOfRow);
 
-    for (int i=0; i<particles.size(); i++) {
-      Frog frog = scenes.get(currentScene).frogger;
+    ynoise = frameCount/noiseMod;
+    xnoise = -frameCount/(noiseMod-10); 
 
-      // Move river particles if frog is alive
-      if (frog.alive()) {
-        particles.get(i).update();
+    float limiter = (heightOfRow/20)*performanceModifier/5;
+    for (float y=ypos-heightOfRow/5; y<=ypos+heightOfRow; y+=limiter) {
+      ynoise += 0.05;
+      for (int x=0; x<=width; x+=5) {
+        xnoise += 0.05;
+        drawPoint(x, y, noise(xnoise, ynoise));
       }
-      particles.get(i).display();
     }
+
+    //for (int i=0; i<particles.size(); i++) {
+    //  Frog frog = scenes.get(currentScene).frogger;
+
+    //  // Move river particles if frog is alive
+    //  if (frog.alive()) {
+    //    particles.get(i).update();
+    //  }
+    //  particles.get(i).display();
+    //}
+  }
+
+  void drawPoint(float x, float y, float noiseFactor) { 
+    float len = 10 * noiseFactor;
+    noFill();
+    noStroke();
+    fill(0, 100, 200+noise(x/y)*55, 150);
+    rect(x, y, len, len);
   }
 
   // Displays all log objects that belong to this row of river
@@ -127,45 +152,45 @@ class River {
 
 
 // A class that defines river particles that move fluidly and add depth to the game
-class RiverParticle {
-  // Position and Size Attributes
-  float xpos, ypos;
-  float originX, originY;
+//class RiverParticle {
+//  // Position and Size Attributes
+//  float xpos, ypos;
+//  float originX, originY;
 
-  // Unique Movement Attribute
-  float sinMod;
-
-
-  // Constructor
-  RiverParticle(float xpos_, float ypos_) {
-    xpos = xpos_;
-    ypos = ypos_;
-
-    originX = xpos;
-    originY = ypos;
-
-    sinMod = random(1, 30);
-  }
+//  // Unique Movement Attribute
+//  float sinMod;
 
 
-  // Move particle in accordance with sin function, offset with unique sinMod attribute
-  void update() {
-    if (xpos > width) {
-      xpos = -sinMod/2+noise(ypos)*2;
-    }
+//  // Constructor
+//  RiverParticle(float xpos_, float ypos_) {
+//    xpos = xpos_;
+//    ypos = ypos_;
 
-    xpos += 1;
-    ypos = originY+(heightOfRow/2)+sin((xpos+sinMod*50)/30)*(heightOfRow/2.2);
-  }
+//    originX = xpos;
+//    originY = ypos;
+
+//    sinMod = random(1, 30);
+//  }
 
 
-  // Display the particle
-  void display() {
-    stroke(0, 50+sinMod*5, 100+sinMod*10, sinMod*20);
-    strokeWeight(noise(ypos)*3);
-    line(xpos-noise(ypos)*2, ypos, xpos+sinMod/2+noise(ypos)*2, ypos);
-  }
-}
+//  // Move particle in accordance with sin function, offset with unique sinMod attribute
+//  void update() {
+//    if (xpos > width) {
+//      xpos = -sinMod/2+noise(ypos)*2;
+//    }
+
+//    xpos += 1;
+//    ypos = originY+(heightOfRow/2)+sin((xpos+sinMod*50)/30)*(heightOfRow/2.2);
+//  }
+
+
+//  // Display the particle
+//  void display() {
+//    stroke(0, 50+sinMod*5, 100+sinMod*10, sinMod*20);
+//    strokeWeight(noise(ypos)*3);
+//    line(xpos-noise(ypos)*2, ypos, xpos+sinMod/2+noise(ypos)*2, ypos);
+//  }
+//}
 
 
 
@@ -413,7 +438,7 @@ class LilyPad {
     // If the car goes out of bounds, reset on opposit side
     // Larger bounds than usual to add variation in current screen content over course of the game
     if (xpos < -(width + width/20 * numLilyPads)) {
-        xpos = width+100;
+      xpos = width+100;
     }
   }
 

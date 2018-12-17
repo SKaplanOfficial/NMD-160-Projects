@@ -50,7 +50,9 @@ To create your own level, copy one of the level folders and increment its name t
 
 ## Videos
 
-Documentation Video: https://www.youtube.com/watch?v=Qb9IaEbrCEc
+Documentation Video:
+https://youtu.be/O6AJNxs7NKg (Voiceover)
+https://www.youtube.com/watch?v=Qb9IaEbrCEc (No voiceover)
 
 ## Changes Coming Soon
 - Original soundtrack

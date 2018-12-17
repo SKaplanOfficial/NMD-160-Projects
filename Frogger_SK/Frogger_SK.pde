@@ -149,6 +149,14 @@ void draw() {
       showLevelSelect();
     }
   }
+  
+  if (debug){
+    long maxMemory = Runtime.getRuntime().maxMemory();
+    long allocatedMemory = Runtime.getRuntime().totalMemory();
+    long freeMemory = Runtime.getRuntime().freeMemory();
+    
+    text(maxMemory +" -|- "+ allocatedMemory +" -|- "+freeMemory, 0,0,width,heightOfRow);
+  }
 
 
   // Display notifications - Independent from scene management
